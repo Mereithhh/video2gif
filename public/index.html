@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线视频转动图</title>
+    <meta name="description" content="在线视频转动图">
+    <meta name="keywords" content="在线视频转动图">
+    <meta name="author" content="Mereithhh">
+    <meta name="robots" content="index, follow">
+
+    <style>
+        body {
+            background-image: url(background.jpeg);
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+
+        }
+
+        input {
+            background: inherit;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            backdrop-filter: blur(7px);
+            background: rgba(255, 255, 255, .6);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 80%;
+            width: 400px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            text-align: left;
+            /* 表单靠左对齐 */
+        }
+
+        input[type="file"],
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: center;
+            /* 数字靠右对齐 */
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            text-transform: uppercase;
+            /* 文本大写 */
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #output {
+            margin-top: 20px;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+        }
+
+        #loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .footer {
+            margin-top: 20px;
+        }
+
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            font-size: 14px;
+            text-decoration: none;
+            color: black;
+            margin-right: 5px;
+        }
+
+        .github-link svg {
+            margin-top: 0px;
+            margin-right: 4px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        #downloadLink {
+            width: 200px;
+        }
+
+        .modal-content {
+            margin: 15% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 600px;
+            backdrop-filter: blur(14px);
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .modal-content>img {
+            max-height: 400px;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            color: #574a4a;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .upload-btn {
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+
+
+        #fileName {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img id="modalImage" src="" alt="Converted GIF" height="300">
+            <a id="downloadLink" href="#" download="converted.gif"><button>下载 GIF</button></a>
+        </div>
+    </div>
+    <div class="container">
+        <h1>视频转动图</h1>
+        <div class="form-group">
+            <label for="videoFile">上传视频 (mp4、mov、qt):</label>
+            <input type="file" id="videoFile" accept=".mov,.mp4,.qt" style="display: none;">
+            <button onclick="document.getElementById('videoFile').click()" class="upload-btn" id="update-btn">选择文件</button>
+            <span id="fileName"></span>
+        </div>
+        <div class="form-group">
+            <label for="sampleRate">采样率 (表示每秒几帧)（fps）:</label>
+            <input type="number" id="sampleRate" value="5">
+        </div>
+        <div class="form-group">
+            <label for="speed">播放速度(默认1倍):</label>
+            <input type="number" id="speed" value="1">
+        </div>
+        <button onclick="convertToGIF()">开始转换</button>
+        <div id="output"></div>
+    </div>
+    <div id="loading">
+        <div id="loadingText">转换中，请稍等</div>
+    </div>
+
+    <div class="footer">
+        <a class="github-link" href="https://github.com/Mereithhh" target="_blank"><svg height="32" aria-hidden="true"
+                viewBox="0 0 16 16" version="1.1" width="32" data-view-component="true"
+                class="octicon octicon-mark-github v-align-middle color-fg-default">
+                <path
+                    d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z">
+                </path>
+            </svg> Mereithhh</a>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
